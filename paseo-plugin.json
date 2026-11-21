@@ -8,7 +8,7 @@
       "description": "Explorer에서 노션 페이지를 골라 워크스페이스 탭에서 읽거나 편집합니다."
     }
   },
-  "media": [],
+  "media": ["assets/screenshot.png"],
   "requirements": {
     "paseo": ">=0.15.4"
   }
