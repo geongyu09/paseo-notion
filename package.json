@@ -2,7 +2,7 @@
   "name": "paseo-notion",
   "description": "Browse Notion pages in the Explorer and read or edit them in a workspace tab.",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "files": [
     "paseo-plugin.json",
     "OVERVIEW.md",
@@ -18,7 +18,7 @@
   ],
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "test": "node --experimental-strip-types --no-warnings --test shared/tree.test.mjs shared/edit.test.mjs"
+    "test": "node --experimental-strip-types --no-warnings --test shared/tree.test.mjs shared/edit.test.mjs server/token.test.mjs"
   },
   "devDependencies": {
     "@getpaseo/plugin": "0.15.4",

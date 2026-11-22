@@ -60,6 +60,8 @@
   "noOpenPageDetail": "오른쪽 노션 목록에서 페이지를 고르면 여기에 표시됩니다.",
   "loadingPage": "페이지를 불러오는 중입니다",
   "pageFailed": "페이지를 불러오지 못했습니다",
+  "workspaceRemoved": "노션 워크스페이스 연결이 해제되었습니다",
+  "workspaceRemovedDetail": "이 페이지가 있는 워크스페이스의 토큰이 삭제되었습니다. 설정에서 토큰을 다시 추가하면 페이지를 열 수 있습니다.",
   "back": "뒤로",
   "refresh": "새로고침",
   "openInNotion": "노션에서 열기",

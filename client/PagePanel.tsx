@@ -21,13 +21,23 @@ import { hasTextSelection } from "./web";
 const tabSchema = z.object({ id: z.string().nullable(), space: z.string().nullable().default(null) });
 type Colors = PluginTheme["colors"];
 
-export function PagePanel({ theme, layout, workspaceId, tab }: PluginWorkspacePanelProps) {
+export interface PageActions {
+  openSettings(): void;
+}
+
+export function createPagePanel(actions: PageActions) {
+  return function NotionPage(props: PluginWorkspacePanelProps) {
+    return <PagePanel {...props} actions={actions} />;
+  };
+}
+
+function PagePanel({ theme, layout, workspaceId, tab, actions }: PluginWorkspacePanelProps & { actions: PageActions }) {
   const colors = theme.colors;
   const [saved, setSaved] = useTabState(tab, tabSchema, { id: null, space: null });
   const place = usePlace(workspaceId);
   const id = place?.id ?? saved.id;
   const space = place ? place.space : saved.space;
-  const { nodes, byId } = useNotionIndex(space);
+  const { query, nodes, byId } = useNotionIndex(space);
   const client = useQueryClient();
   const refreshIndex = useRefreshIndex(space);
   const node = id ? byId.get(id) : undefined;
@@ -49,6 +59,20 @@ export function PagePanel({ theme, layout, workspaceId, tab }: PluginWorkspacePa
     return (
       <View style={{ flex: 1, backgroundColor: colors.surface0 }}>
         <Notice colors={colors} title={t("noOpenPage")} detail={t("noOpenPageDetail")} />
+      </View>
+    );
+  }
+
+  // The daemon rejects this workspace's requests, so ask for its token instead of showing the page.
+  if (query.data?.status === "workspace-removed") {
+    return (
+      <View style={{ flex: 1, backgroundColor: colors.surface0 }}>
+        <Notice
+          colors={colors}
+          title={t("workspaceRemoved")}
+          detail={t("workspaceRemovedDetail")}
+          action={{ label: t("openSettings"), onPress: actions.openSettings }}
+        />
       </View>
     );
   }

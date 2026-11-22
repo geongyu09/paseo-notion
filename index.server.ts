@@ -1,5 +1,6 @@
 import type { PluginServerContext } from "@getpaseo/plugin/server";
 import { describeWorkspace, editPage, getDatabase, forgetOtherWorkspaces, getIndex, getPage, hashToken } from "./server/notion";
+import { pickToken } from "./server/token";
 import { connection, databaseRpc, editRpc, indexRpc, pageRpc, workspacesRpc } from "./shared/notion";
 
 export default function contribute(server: PluginServerContext) {
@@ -9,34 +10,34 @@ export default function contribute(server: PluginServerContext) {
     const state = await settings.read();
     return state.status === "ready" ? tokensOf(state.values) : [];
   };
-  const tokenFor = async (space: string | null) => {
-    const all = await tokens();
-    return all.find((token) => hashToken(token) === space) ?? all[0];
-  };
+  const tokenFor = async (space: string | null) => pickToken(await tokens(), space, hashToken);
+  // A removed workspace's request must never run under another workspace's token.
+  const missing = (space: string | null) =>
+    new Error(space === null ? "No Notion token is set." : "The token for this Notion workspace was removed.");
 
   server.handle(workspacesRpc, async () => Promise.all((await tokens()).map(describeWorkspace)));
 
   server.handle(indexRpc, async ({ space, refresh }) => {
     const token = await tokenFor(space);
-    if (!token) return { status: "no-token" as const };
+    if (!token) return space === null ? { status: "no-token" as const } : { status: "workspace-removed" as const };
     return { status: "ready" as const, space: hashToken(token), ...(await getIndex(token, refresh)) };
   });
 
   server.handle(pageRpc, async ({ space, id }) => {
     const token = await tokenFor(space);
-    if (!token) throw new Error("No Notion token is set.");
+    if (!token) throw missing(space);
     return getPage(token, id);
   });
 
   server.handle(databaseRpc, async ({ space, id, cursor }) => {
     const token = await tokenFor(space);
-    if (!token) throw new Error("No Notion token is set.");
+    if (!token) throw missing(space);
     return getDatabase(token, id, cursor);
   });
 
   server.handle(editRpc, async ({ space, pageId, change }) => {
     const token = await tokenFor(space);
-    if (!token) throw new Error("No Notion token is set.");
+    if (!token) throw missing(space);
     return editPage(token, pageId, change);
   });
 

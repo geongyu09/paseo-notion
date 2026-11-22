@@ -1,11 +1,12 @@
 import type { PluginClientContext } from "@getpaseo/plugin/client";
 import { createExplorer } from "./client/Explorer";
-import { PagePanel } from "./client/PagePanel";
+import { createPagePanel } from "./client/PagePanel";
 import { messages } from "./client/messages";
 import { ConnectionSettings } from "./client/Settings";
 import { navigate } from "./client/store";
 
 export default function contribute(client: PluginClientContext) {
+  const openSettings = () => client.openSettings("connection");
   const removers = [
     client.addWorkspacePanel({
       id: "tree",
@@ -17,7 +18,7 @@ export default function contribute(client: PluginClientContext) {
           navigate(workspaceId, spot);
           client.openPanel("page", { workspaceId, location: "workspace" });
         },
-        openSettings: () => client.openSettings("connection"),
+        openSettings,
       }),
     }),
     client.addWorkspacePanel({
@@ -25,7 +26,7 @@ export default function contribute(client: PluginClientContext) {
       title: messages.message("notionPage"),
       icon: "NotebookText",
       locations: ["workspace"],
-      Component: PagePanel,
+      Component: createPagePanel({ openSettings }),
     }),
     client.addSettingsScreen({ id: "connection", title: messages.message("connection"), icon: "KeyRound", Component: ConnectionSettings }),
     client.addCommandCenterItem({

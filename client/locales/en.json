@@ -62,6 +62,8 @@
   "noOpenPageDetail": "Pick a page in the Notion list on the right to show it here.",
   "loadingPage": "Loading page",
   "pageFailed": "Couldn't load page",
+  "workspaceRemoved": "Notion workspace disconnected",
+  "workspaceRemovedDetail": "The token for this page's workspace was removed. Add it again in Settings to open the page.",
   "back": "Back",
   "refresh": "Refresh",
   "openInNotion": "Open in Notion",

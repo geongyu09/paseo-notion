@@ -28,10 +28,16 @@ export function createExplorer(actions: ExplorerActions) {
     const { t } = useTranslation(messages);
     const [picking, setPicking] = useState(false);
     const [search, setSearch] = useState("");
-    // The daemon falls back to the first token, so its answer names the workspace on screen.
+    // With no pick the daemon uses the first token, so its answer names the workspace on screen.
     const space = query.data?.status === "ready" ? query.data.space : state.space;
+    const removed = query.data?.status === "workspace-removed";
     const expanded = useMemo(() => new Set(state.expanded), [state.expanded]);
     const activeId = usePlace(workspaceId)?.id;
+
+    // A removed workspace's tree is gone; fall back to the first remaining one.
+    useEffect(() => {
+      if (removed) setState({ ...state, space: null });
+    }, [removed]);
 
     // Reveal the page shown in the center, as a file explorer reveals the open file.
     useEffect(() => {
@@ -53,7 +59,7 @@ export function createExplorer(actions: ExplorerActions) {
       setState({ ...state, expanded: expanded.has(id) ? state.expanded.filter((x) => x !== id) : [...state.expanded, id] });
 
     const body = (() => {
-      if (query.isPending) {
+      if (query.isPending || removed) {
         return (
           <Notice colors={colors} busy title={t("loadingTree")} detail={t("firstLoadSlow")} />
         );

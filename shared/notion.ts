@@ -14,7 +14,7 @@ export const connection = defineSettings({
   },
 });
 
-/** A workspace's token hash; null, or a hash whose token was removed, means the first token. */
+/** A workspace's token hash; null means the first token. A hash whose token was removed is rejected. */
 const space = z.string().nullable();
 
 export const workspacesRpc = defineRpc({
@@ -62,6 +62,8 @@ export const indexRpc = defineRpc({
       refreshing: z.boolean(),
     }),
     z.object({ status: z.literal("no-token") }),
+    /** `space` named a workspace whose token was removed. */
+    z.object({ status: z.literal("workspace-removed") }),
   ]),
 });
 
